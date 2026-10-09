@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deploy to GitHub Pages — Step by Step Guide</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; background: #f6f5f2; color: #2d2a26; line-height: 1.75; font-size: 15px; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+  h1 { font-family: Georgia, serif; font-size: 1.8rem; margin-bottom: .35rem; letter-spacing: -.02em; }
+  .subtitle { color: #6b655c; font-size: .95rem; margin-bottom: 2rem; }
+  .file-box { background: #fff; border: 1px solid #e8e2d9; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; }
+  .file-box h2 { font-size: 1rem; font-weight: 700; margin-bottom: .75rem; display: flex; align-items: center; gap: .5rem; }
+  .file-box h2 .icon { font-size: 1.1rem; }
+  .file-list { list-style: none; padding: 0; }
+  .file-list li { display: flex; align-items: center; gap: .5rem; padding: .35rem 0; font-size: .875rem; color: #6b655c; }
+  .file-list li .fname { font-family: 'SF Mono', 'Fira Code', Consolas, monospace; font-size: .82rem; color: #2d2a26; font-weight: 600; }
+  .file-list li .fdesc { font-size: .82rem; }
+
+  .step { background: #fff; border: 1px solid #e8e2d9; border-radius: 14px; padding: 1.75rem; margin-bottom: 1.25rem; position: relative; overflow: hidden; }
+  .step-num { position: absolute; top: 1.25rem; right: 1.25rem; width: 32px; height: 32px; border-radius: 50%; background: #b08968; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .9rem; flex-shrink: 0; }
+  .step h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: .5rem; padding-right: 2.5rem; }
+  .step p { font-size: .9rem; color: #6b655c; line-height: 1.7; }
+  .step p + p { margin-top: .5rem; }
+  .step .highlight { background: #faf6f0; border-left: 3px solid #b08968; padding: .6rem .9rem; border-radius: 4px; margin-top: .75rem; font-size: .85rem; color: #5a5550; }
+  .step .highlight code { font-family: 'SF Mono', Consolas, monospace; background: #f0ebe2; padding: .1rem .35rem; border-radius: 3px; font-size: .82rem; color: #8a6843; }
+
+  /* Mockup of GitHub UI */
+  .gh-mock { background: #fff; border: 1px solid #d0d7de; border-radius: 8px; margin-top: 1rem; font-size: .8rem; overflow: hidden; }
+  .gh-mock .gh-header { background: #f6f8fa; border-bottom: 1px solid #d0d7de; padding: .5rem .75rem; display: flex; align-items: center; gap: .4rem; color: #57606a; }
+  .gh-mock .gh-header .repo-name { font-weight: 600; color: #1f2328; }
+  .gh-mock .gh-body { padding: 1.5rem .75rem; text-align: center; border: 2px dashed #d0d7de; border-radius: 8px; margin: .75rem; background: #fafbfc; }
+  .gh-mock .gh-body .drop-icon { font-size: 2rem; margin-bottom: .5rem; opacity: .5; }
+  .gh-mock .gh-body .drop-text { color: #57606a; font-size: .85rem; }
+  .gh-mock .gh-body .drop-sub { color: #8c959f; font-size: .78rem; margin-top: .25rem; }
+  .gh-mock .gh-body.drag-active { border-color: #2da44e; background: #f6fef8; }
+  .gh-mock .gh-body.drag-active .drop-icon { opacity: 1; }
+
+  .gh-mock .gh-tabs { display: flex; gap: 0; border-bottom: 1px solid #d0d7de; padding: 0 .75rem; }
+  .gh-mock .gh-tab { padding: .5rem .75rem; font-size: .78rem; color: #57606a; border-bottom: 2px solid transparent; }
+  .gh-mock .gh-tab.active { color: #1f2328; border-bottom-color: #fd8c73; font-weight: 600; }
+
+  .gh-mock .gh-settings { padding: 1rem .75rem; }
+  .gh-mock .gh-settings .setting-row { display: flex; align-items: center; justify-content: space-between; padding: .5rem 0; border-bottom: 1px solid #eaeef2; font-size: .8rem; }
+  .gh-mock .gh-settings .setting-row:last-child { border-bottom: none; }
+  .gh-mock .gh-settings .setting-label { color: #1f2328; }
+  .gh-mock .gh-settings .setting-value { color: #57606a; }
+  .gh-mock .gh-settings .source-btn { background: #fff; border: 1px solid #d0d7de; border-radius: 6px; padding: .25rem .6rem; font-size: .75rem; color: #57606a; display: inline-flex; align-items: center; gap: .3rem; }
+
+  .tip-box { background: #f0f7ff; border: 1px solid #d0e3ff; border-radius: 10px; padding: 1rem 1.25rem; margin-top: 1.5rem; }
+  .tip-box h4 { font-size: .9rem; font-weight: 700; color: #1a5fag; margin-bottom: .35rem; }
+  .tip-box p { font-size: .85rem; color: #445; line-height: 1.6; }
+  .tip-box .your-url { font-family: 'SF Mono', Consolas, monospace; background: #e8f1ff; padding: .15rem .4rem; border-radius: 3px; color: #1a5fag; font-size: .82rem; }
+
+  .final-url-box { background: linear-gradient(135deg, #f0ebe2, #faf6f0); border: 1px solid #d4c9b8; border-radius: 14px; padding: 1.5rem 1.75rem; margin-top: 1.5rem; text-align: center; }
+  .final-url-box h3 { font-size: 1rem; font-weight: 700; margin-bottom: .5rem; }
+  .final-url-box .url { font-family: 'SF Mono', Consolas, monospace; font-size: .9rem; color: #8a6843; background: #fff; padding: .5rem 1rem; border-radius: 6px; display: inline-block; border: 1px solid #e8e2d9; }
+  .final-url-box p { font-size: .82rem; color: #6b655c; margin-top: .5rem; }
+
+  .arrow { text-align: center; font-size: 1.5rem; color: #c9bca8; margin: .25rem 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Deploy Your Website to GitHub Pages</h1>
+  <p class="subtitle">Follow these 6 steps. Total time: ~5 minutes. No coding required.</p>
+
+  <!-- Files needed -->
+  <div class="file-box">
+    <h2><span class="icon">&#128193;</span> Files You'll Upload</h2>
+    <p style="font-size:.85rem; color:#6b655c; margin-bottom:.75rem;">Your <code style="font-family:'SF Mono',Consolas,monospace; background:#f0ebe2; padding:.1rem .35rem; border-radius:3px; font-size:.82rem;">deploy</code> folder contains these files — select all of them when dragging:</p>
+    <ul class="file-list">
+      <li><span class="fname">index.html</span> <span class="fdesc">— Your complete website (all styling is built in)</span></li>
+      <li><span class="fname">.nojekyll</span> <span class="fdesc">— Tells GitHub to skip Jekyll processing (keeps everything working)</span></li>
+    </ul>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="step">
+    <div class="step-num">1</div>
+    <h3>Go to github.com and create a new repository</h3>
+    <p>Sign in to <a href="https://github.com/new" target="_blank" style="color:#b08968;">github.com/new</a> and fill in:</p>
+    <div class="highlight">
+      <strong>Repository name:</strong> <code>chloe-portfolio</code> (or any name you like)<br>
+      <strong>Visibility:</strong> Public (required for free GitHub Pages)<br>
+      <strong>Don't</strong> add a README or .gitignore — leave it empty
+    </div>
+    <p style="margin-top:.75rem;">Click <strong>"Create repository"</strong> at the bottom.</p>
+  </div>
+
+  <div class="arrow">&#8595;</div>
+
+  <!-- Step 2 -->
+  <div class="step">
+    <div class="step-num">2</div>
+    <h3>Drag your files into the repository</h3>
+    <p>On the empty repository page, you'll see a big dashed area that says "dragging files here to add them to your repository." Open your <code style="font-family:'SF Mono',Consolas,monospace; background:#f0ebe2; padding:.1rem .35rem; border-radius:3px; font-size:.82rem;">deploy</code> folder, select both files, and drag them onto the page.</p>
+
+    <!-- Mockup of GitHub drop zone -->
+    <div class="gh-mock">
+      <div class="gh-header">
+        <span>&#128193;</span>
+        <span class="repo-name">your-username / chloe-portfolio</span>
+      </div>
+      <div class="gh-body drag-active">
+        <div class="drop-icon">&#128190;</div>
+        <div class="drop-text"><strong>Drag files here</strong> to add them to your repository</div>
+        <div class="drop-sub">Drop index.html and .nojekyll here</div>
+      </div>
+    </div>
+    <p style="margin-top:.75rem;">After dropping, type a commit message like <code style="font-family:'SF Mono',Consolas,monospace; background:#f0ebe2; padding:.1rem .35rem; border-radius:3px; font-size:.82rem;">Add portfolio website</code> and click <strong>"Commit changes"</strong>.</p>
+  </div>
+
+  <div class="arrow">&#8595;</div>
+
+  <!-- Step 3 -->
+  <div class="step">
+    <div class="step-num">3</div>
+    <h3>Go to repository Settings &rarr; Pages</h3>
+    <p>Click the <strong>Settings</strong> tab at the top of your repository, then find <strong>Pages</strong> in the left sidebar.</p>
+
+    <!-- Mockup of GitHub Pages settings -->
+    <div class="gh-mock">
+      <div class="gh-tabs">
+        <div class="gh-tab">Code</div>
+        <div class="gh-tab">Issues</div>
+        <div class="gh-tab">Pull requests</div>
+        <div class="gh-tab">Actions</div>
+        <div class="gh-tab">Projects</div>
+        <div class="gh-tab">Wiki</div>
+        <div class="gh-tab active">Settings</div>
+      </div>
+      <div class="gh-settings">
+        <div style="font-size:.78rem; color:#8c959f; margin-bottom:.5rem; text-transform:uppercase; letter-spacing:.05em;">&#9656; Code and automation &rarr; Pages</div>
+        <div class="setting-row">
+          <span class="setting-label">Build and deployment &middot; Source</span>
+          <span class="source-btn">Deploy from a branch &#9662;</span>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">Branch</span>
+          <span class="source-btn">main &#9662;</span>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">Folder</span>
+          <span class="source-btn">/ (root) &#9662;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow">&#8595;</div>
+
+  <!-- Step 4 -->
+  <div class="step">
+    <div class="step-num">4</div>
+    <h3>Set Source to "Deploy from a branch"</h3>
+    <p>Under <strong>Build and deployment</strong>, make sure Source is set to <strong>Deploy from a branch</strong>.</p>
+    <p>Then set the branch to <strong>main</strong> and folder to <strong>/ (root)</strong>.</p>
+    <p>Click <strong>Save</strong>.</p>
+  </div>
+
+  <div class="arrow">&#8595;</div>
+
+  <!-- Step 5 -->
+  <div class="step">
+    <div class="step-num">5</div>
+    <h3>Wait ~1-2 minutes for the build</h3>
+    <p>GitHub will build your site. Refresh the Pages settings page after a minute — you'll see a green success message with your live URL.</p>
+  </div>
+
+  <div class="arrow">&#8595;</div>
+
+  <!-- Step 6 -->
+  <div class="step">
+    <div class="step-num">6</div>
+    <h3>Visit your live website!</h3>
+    <p>Your website is now live. The URL will look like this:</p>
+    <div class="final-url-box">
+      <h3>&#127881; Your site is live!</h3>
+      <div class="url">https://your-username.github.io/chloe-portfolio/</div>
+      <p>Replace <strong>your-username</strong> with your actual GitHub username and <strong>chloe-portfolio</strong> with your repo name.</p>
+    </div>
+  </div>
+
+  <!-- Tips -->
+  <div class="tip-box">
+    <h4>&#128161; Quick Tips</h4>
+    <p>
+      <strong>Can't see .nojekyll?</strong> — Files starting with a dot are hidden on some systems. In File Explorer, turn on "Show hidden files" (View &rarr; Hidden items). If you can't drag it, don't worry — your site will still work; .nojekyll is just a safety net.<br><br>
+      <strong>Want to update later?</strong> — Just drag a new <code style="font-family:'SF Mono',Consolas,monospace; background:#e8f1ff; padding:.1rem .3rem; border-radius:3px; font-size:.8rem;">index.html</code> into the same repo and commit. GitHub auto-rebuilds in seconds.<br><br>
+      <strong>Custom domain?</strong> — In Pages settings, you can add a custom domain (e.g. <span class="your-url">chloechan.com</span>) under the "Custom domain" field.
+    </p>
+  </div>
+
+</div>
+</body>
+</html>
